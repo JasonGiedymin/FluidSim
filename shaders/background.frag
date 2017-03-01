@@ -1,0 +1,1 @@
+precision mediump float;varying vec2 v_position;void main(){vec3 a=vec3(0.0)-length(v_position)*0.6;gl_FragColor=vec4(a,1.0);}

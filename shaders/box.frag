@@ -1,0 +1,1 @@
+precision mediump float;varying vec3 v_cubePosition;uniform vec3 u_highlightSide;uniform vec3 u_highlightColor;void main(){float a=0.001;vec3 b=v_cubePosition*2.0-1.0;if(abs(b.x-u_highlightSide.x)<a||abs(b.y-u_highlightSide.y)<a||abs(b.z-u_highlightSide.z)<a){gl_FragColor=vec4(vec3(1.0,1.0,0.1),1.0);}else{gl_FragColor=vec4(vec3(0.10),1.0);}}
