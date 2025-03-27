@@ -1,148 +1,304 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Jason Giedymin</title><meta name="description" content="Jason Giedymin"><link rel="stylesheet" href="css/flip.css"></head><body><script type="text/template" id="main"><style>
-        .editing-ui {
-            display: none;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Fluid Simulation</title>
+    <meta name="description" content="Fluid Simulation">
+    <link rel="stylesheet" href="css/flip.css">
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            background: #000;
         }
-
-        .simulating-ui {
-            display: none;
+        #controls {
+            position: fixed;
+            top: 0;
+            right: -300px;
+            width: 300px;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px;
+            box-sizing: border-box;
+            transition: right 0.3s ease;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+        #controls.visible {
+            right: 0;
+        }
+        #toggleControls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1001;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        #toggleControls:hover {
+            background: rgba(0, 0, 0, 0.9);
+        }
+        .panel-section {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .panel-section h2 {
+            margin: 0 0 15px 0;
+            font-size: 16px;
+            color: #fff;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 8px;
+        }
+        .panel-section span {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        /* Remove all custom button styling */
+        #controls .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        #controls .button-group .action-button {
+            flex: 1;
+        }
+        /* Dropdown Styling */
+        .control-dropdown {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        .control-dropdown button {
+            width: 100%;
+            text-align: left;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .control-dropdown button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .control-dropdown .dropdown-menu {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .control-dropdown .dropdown-menu li a {
+            color: white;
+            padding: 8px 12px;
+        }
+        .control-dropdown .dropdown-menu li a:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .control-dropdown .dropdown-menu li.active a {
+            background: #4CAF50;
+        }
+        /* Slider Styling */
+        .slider-container {
+            margin-bottom: 15px;
+        }
+        .slider-label {
+            display: block;
+            margin-bottom: 5px;
+            color: #fff;
+            font-size: 14px;
+        }
+        .slider {
+            width: 100%;
+            margin: 10px 0;
+        }
+        .slider-value {
+            color: #4CAF50;
+            font-size: 13px;
+            margin-top: 5px;
+            font-weight: bold;
+        }
+        /* Hide original UI */
+        #ui {
+            display: none !important;
+        }
+        .instructions.editing-ui,
+        .instructions.simulating-ui {
+            display: none !important;
         }
     </style>
-
-    <div id="ui">
-        <div id="start-button">Start</div>
-
-        <div id="preset-button" class="editing-ui">Next Preset</div>
-
-        <div class="dropdown" id="dropdown-pressure">
-            <button id="dropdown-pressure-label" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Hydrostatic Pressure
-                <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu" id="menu-hp" aria-labelledby="drop-pressure">
-                <li class="active"><a href="#" id="shallow">Bath Tub</a></li>
-                <li><a href="#" id="pool">Swimming Pool</a></li>
-                <li><a href="#" id="river">River Bed</a></li>
-                <li><a href="#" id="ocean">Ocean Floor</a></li>
-            </ul>
+</head>
+<body>
+    <div id="placeholder"></div>
+    
+    <button id="toggleControls">☰ Controls</button>
+    <div id="controls">
+        <div class="panel-section">
+            <h2>Instructions</h2>
+            <div>
+                <span>Space + drag</span> to rotate camera <br/>
+                <span>Scroll</span> to zoom in and out <br/>
+                <span>Draw on walls</span> to create new boxes <br/>
+                <span>Drag box faces</span> to resize <br/>
+                <span>Shift + drag box faces</span> to translate <br/>
+                <span>Move mouse</span> to push particles
+            </div>
         </div>
 
-        <div class="dropdown" id="dropdown-viscosity">
-            <button id="dropdown-viscosity-label" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Viscosity
-                <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu" id="menu-velocity" aria-labelledby="drop-viscosity">
-                <li><a href="#" id="honey">Honey</a></li>
-                <li><a href="#" id="oil">Oil</a></li>
-                <li><a href="#" id="dishsoap">Dishsoap</a></li>
-                <li class="active"><a href="#" id="water">Water</a></li>
-                <li><a href="#" id="rollingboil">Rolling Boil</a></li>
-                <li><a href="#" id="lava">Lava</a></li>
-            </ul>
+        <div class="panel-section">
+            <h2>Simulation Controls</h2>
+            <div class="button-group">
+                <button class="action-button" id="start-button">START</button>
+                <button class="action-button secondary" id="preset-button">Next Preset</button>
+            </div>
         </div>
 
-        <div class="dropdown" id="dropdown-temp">
-            <button type="button" id="dropdown-temp-label" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                Stability
-                <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu" id="menu-temp" aria-labelledby="drop-temp">
-                <li class="active"><a href="#" id="stableTemp">Stable</a></li>
-                <li><a href="#" id="boilingoverTemp">Boiling</a></li>
-                <li><a href="#" id="superheatingTemp">Super Heating</a></li>
-                <li><a href="#" id="explosiveTemp">Explosive</a></li>
-            </ul>
+        <div class="panel-section">
+            <h2>Fluid Properties</h2>
+            <div class="control-dropdown dropdown" id="dropdown-pressure">
+                <button id="dropdown-pressure-label" type="button" data-toggle="dropdown">
+                    Hydrostatic Pressure
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" id="menu-hp">
+                    <li class="active"><a href="#" id="shallow">Bath Tub</a></li>
+                    <li><a href="#" id="pool">Swimming Pool</a></li>
+                    <li><a href="#" id="river">River Bed</a></li>
+                    <li><a href="#" id="ocean">Ocean Floor</a></li>
+                </ul>
+            </div>
+
+            <div class="control-dropdown dropdown" id="dropdown-viscosity">
+                <button id="dropdown-viscosity-label" type="button" data-toggle="dropdown">
+                    Viscosity
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" id="menu-velocity">
+                    <li><a href="#" id="honey">Honey</a></li>
+                    <li><a href="#" id="oil">Oil</a></li>
+                    <li><a href="#" id="dishsoap">Dishsoap</a></li>
+                    <li class="active"><a href="#" id="water">Water</a></li>
+                    <li><a href="#" id="rollingboil">Rolling Boil</a></li>
+                    <li><a href="#" id="lava">Lava</a></li>
+                </ul>
+            </div>
+
+            <div class="control-dropdown dropdown" id="dropdown-temp">
+                <button id="dropdown-temp-label" type="button" data-toggle="dropdown">
+                    Stability
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" id="menu-temp">
+                    <li class="active"><a href="#" id="stableTemp">Stable</a></li>
+                    <li><a href="#" id="boilingoverTemp">Boiling</a></li>
+                    <li><a href="#" id="superheatingTemp">Super Heating</a></li>
+                    <li><a href="#" id="explosiveTemp">Explosive</a></li>
+                </ul>
+            </div>
         </div>
 
-        <div class="dropdown" id="dropdown-theme">
-            <button type="button" id="dropdown-themes-label" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                Themes
-                <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu" aria-labelledby="drop-theme">
-                <li class="active"><a href="#" id="defaultTheme">default</a></li>
-                <li><a href="#" id="skittlesTheme">skittles</a></li>
-                <li><a href="#" id="invisiblehandTheme">invisible hand</a></li>
-                <li><a href="#" id="fireTheme">fire</a></li>
-                <li><a href="#" id="valentinesTheme">valentines</a></li>
-                <li><a href="#" id="valentines2Theme">valentines2</a></li>
-                <li><a href="#" id="handoflightTheme">hand of light</a></li>
-                <li><a href="#" id="technicolorTheme">technicolor</a></li>
-                <li><a href="#" id="wavesTheme">waves</a></li>
-                <li><a href="#" id="aquariumTheme">aquarium</a></li>
-                <li><a href="#" id="deepoceanTheme">deep ocean</a></li>
-                <li><a href="#" id="handoflifeTheme">hand of life</a></li>
-                <li><a href="#" id="bloodlustTheme">bloodlust</a></li>
-            </ul>
+        <div class="panel-section">
+            <h2>Visual Settings</h2>
+            <div class="control-dropdown dropdown" id="dropdown-theme">
+                <button id="dropdown-themes-label" type="button" data-toggle="dropdown">
+                    Themes
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li class="active"><a href="#" id="defaultTheme">Default</a></li>
+                    <li><a href="#" id="skittlesTheme">Skittles</a></li>
+                    <li><a href="#" id="invisiblehandTheme">Invisible Hand</a></li>
+                    <li><a href="#" id="fireTheme">Fire</a></li>
+                    <li><a href="#" id="valentinesTheme">Valentines</a></li>
+                    <li><a href="#" id="valentines2Theme">Valentines 2</a></li>
+                    <li><a href="#" id="handoflightTheme">Hand of Light</a></li>
+                    <li><a href="#" id="technicolorTheme">Technicolor</a></li>
+                    <li><a href="#" id="wavesTheme">Waves</a></li>
+                    <li><a href="#" id="aquariumTheme">Aquarium</a></li>
+                    <li><a href="#" id="deepoceanTheme">Deep Ocean</a></li>
+                    <li><a href="#" id="handoflifeTheme">Hand of Life</a></li>
+                    <li><a href="#" id="bloodlustTheme">Bloodlust</a></li>
+                </ul>
+            </div>
+
+            <div class="control-dropdown dropdown" id="dropdown-stage">
+                <button id="dropdown-presets-label" type="button" data-toggle="dropdown">
+                    Preset Stages
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a href="#" id="defaultStage">None</a></li>
+                    <li class="active"><a href="#" id="oceanStage">Ocean</a></li>
+                    <li><a href="#" id="lifeStage">Life</a></li>
+                    <li><a href="#" id="lavaStage">Lava</a></li>
+                    <li><a href="#" id="bloodStage">Blood</a></li>
+                </ul>
+            </div>
         </div>
 
-        <div class="dropdown" id="dropdown-stage">
-            <button type="button" id="dropdown-presets-label" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                Preset Stages
-                <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu" aria-labelledby="drop-stage">
-                <li><a href="#" id="defaultStage">none</a></li>
-                <li class="active"><a href="#" id="oceanStage">ocean</a></li>
-                <li><a href="#" id="lifeStage">life</a></li>
-                <li><a href="#" id="lavaStage">lava</a></li>
-                <li><a href="#" id="bloodStage">blood</a></li>
-            </ul>
+        <div class="panel-section">
+            <h2>Particle Settings</h2>
+            <div class="slider-container editing-ui">
+                <label class="slider-label">Particle Density</label>
+                <div id="density-slider" class="slider"></div>
+                <div id="particle-count" class="slider-value"></div>
+            </div>
+
+            <div class="slider-container simulating-ui">
+                <label class="slider-label">Fluidity (FLIP/PIC Ratio)</label>
+                <div id="fluidity-slider" class="slider"></div>
+            </div>
+
+            <div class="slider-container simulating-ui">
+                <label class="slider-label">Simulation Speed</label>
+                <div id="speed-slider" class="slider"></div>
+            </div>
         </div>
-        <br/>
-
-        <br/><div class="toggle-sep"></div>
-
-        <div class="slider-label editing-ui">Particle Density</div>
-        <div id="density-slider" class="slider editing-ui"></div>
-
-        <div id="particle-count" class="editing-ui"></div>
-
-        <div class="slider-label simulating-ui">Fluidity</div>
-        <div id="fluidity-slider" class="slider simulating-ui"></div>
-
-        <div class="slider-label simulating-ui">Speed</div>
-        <div id="speed-slider" class="slider simulating-ui"></div>
     </div>
 
+    <script type="text/template" id="main">
+        <style>
+            .editing-ui {
+                display: none;
+            }
+            .simulating-ui {
+                display: none;
+            }
+        </style>
 
-    <div class="instructions editing-ui" style="z-index:200;">
-        <span>Space + drag</span> to rotate camera <br/>
-        <span>Scroll</span> to zoom in and out <br/>
-        <br/>
-        <span>Draw on walls</span> to create new boxes <br/>
-        <span>Drag box faces</span> to resize <br/>
-        <span>Shift + drag box faces</span> to translate <br/>
-    </div>
+        <canvas id="canvas" width="1920" height="1080"></canvas>
+    </script>
 
-    <div class="instructions simulating-ui">
-        <span>Drag</span> to rotate camera<br/>
-        <span>Scroll</span> to zoom in and out <br/>
-        <span>Move mouse</span> to push particles
-    </div>
-
-    <div id="footer">
-        <a href="http://jasongiedymin.com">Jason Giedymin</a> | <a href="http://jasongiedymin.com/">Portfolio</a> |
-        <a href="https://github.com/JasonGiedymin">GitHub</a> | <a href="http://blog.jasongiedymin.com">Blog</a> |
-        <a href="http://twitter.com/JasonGiedymin">Twitter</a>
-    </div>
-    <div id="footer2">
-        I had for many years been sitting on various shaders, textures, and optimizations around velocity, and simulating
-        viscosity with hydrostatic pressure. It wasn't until David's demo with a hand rolled box editor and basic stepped
-        scene (non threejs setup), and the base pic/flip solver that got me to re-do my ideas. This time complete them as
-        I envisioned all those years ago. Big thanks to <a href="https://github.com/dli/fluid">David Li</a> for writing
-        the Box Editor and rendering simulator. If your looking to brush up on fluid simulation, check out
-        <a href="https://www.crcpress.com/Fluid-Simulation-for-Computer-Graphics-Second-Edition/Bridson/p/book/9781482232837">Robert Bridson's</a>
-        book.
-    </div>
-
-    <canvas id="canvas" width="1920" height="1080"></canvas></script><script type="text/template" id="no-support"><div id="container">
+    <script type="text/template" id="no-support">
+        <div id="container">
         <div id="error"></div>
         <div id="linkback"><a href="http://jasongiedymin.com">Jason Giedymin</a></div>
-    </div></script><div id="placeholder"></div><script src="https://code.jquery.com/jquery-3.1.1.slim.min.js"></script><!-- Latest compiled and minified CSS --><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"><!-- Optional theme --><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous"><!-- Latest compiled and minified JavaScript --><script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script><script src="js/wrappedgl.js"></script><script src="js/utilities.js"></script><script src="js/camera.js"></script><script src="js/boxeditor.js"></script><script src="js/simulator.js"></script><script src="js/renderer.js"></script><script src="js/simulatorrenderer.js"></script><script src="js/slider.js"></script><script src="js/fluidparticles.js"></script><script src="js/conf.js"></script><script src="js/env.js"></script><script src="js/main.js"></script><script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+        </div>
+    </script>
 
-    ga('create', 'UA-8200340-9', 'auto');
-    ga('send', 'pageview');</script></body></html>
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="js/wrappedgl.js"></script>
+    <script src="js/utilities.js"></script>
+    <script src="js/camera.js"></script>
+    <script src="js/boxeditor.js"></script>
+    <script src="js/simulator.js"></script>
+    <script src="js/renderer.js"></script>
+    <script src="js/simulatorrenderer.js"></script>
+    <script src="js/slider.js"></script>
+    <script src="js/fluidparticles.js"></script>
+    <script src="js/conf.js"></script>
+    <script src="js/env.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

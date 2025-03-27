@@ -1,1 +1,249 @@
-*{font-family:Asap,Helvetica,Arial,sans-serif}body{margin:0;padding:0;overflow:hidden;user-select:none;-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none}.ui-selector{width:170px}#canvas{z-index:-1}#start-button{font-size:16px;color:#fff;font-weight:700;margin-bottom:20px;margin-top:10px;width:125px;height:40px;line-height:40px;text-align:center;pointer-events:auto}.start-button-active{cursor:default;background:#46be3c}.start-button-active:hover{background:#3cb432}.start-button-active:active{background:#32aa28}.start-button-inactive{background:#999;cursor:default}#preset-button{margin-bottom:10px;background:rgba(80,160,230,1);font-size:12px;font-weight:700;color:#fff;width:100px;height:30px;line-height:30px;text-align:center;cursor:default;pointer-events:auto}.toggle-button{margin-bottom:10px;background:rgba(100,100,100,1);font-size:12px;font-weight:700;color:#fff;width:90px;height:30px;line-height:30px;text-align:center;cursor:default;pointer-events:auto;float:left;border-color:rgba(20,20,20,1);border-style:solid;border-width:1px}.toggle-button:active{background:rgba(30,30,30,1)}.toggle-button:hover{background:rgba(70,70,70,1)}#preset-button:hover{background:rgba(70,150,220,1)}#preset-button:active{background:rgba(60,140,210,1)}.toggle-sep{clear:left}#ui{position:absolute;pointer-events:visiblePainted;top:30px;left:30px;width:120px;background-color:#000}.dropdown{width:125px}.dropdown button{width:125px}#particle-count{color:#777;font-size:12px;margin-top:4px}.slider-label{color:#555;font-size:12px;font-weight:700;margin-top:5px}.slider{margin-top:4px;width:200px;height:22px;user-select:none;-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none;background:rgba(0,0,0,.1);pointer-events:auto}.slider:hover{background:rgba(0,0,0,.12)}.slider div{background:#666}.slider:hover div{background:#555}.instructions{position:absolute;bottom:80px;left:30px;font-size:12px;line-height:16px;color:#555;margin-top:20px}.instructions span{font-weight:700;color:#444}#footer{font-size:12px;position:absolute;right:20px;bottom:20px;color:#555}#footer2 a{text-decoration:underline;color:rgba(35,35,35,1)}#footer2{font-size:10px;position:absolute;left:20px;right:20px;bottom:40px;color:rgba(35,35,35,1);display:none}#footer a{text-decoration:underline;color:#555}#container{color:#333;font-size:14px;margin-top:40px;margin-left:40px}#video{color:#333;font-size:14px;margin-top:20px}#linkback{color:#333;margin-top:20px}#linkback a{color:#333}
+* {
+    font-family: Asap, Helvetica, Arial, sans-serif;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+}
+
+.ui-selector {
+    width: 170px;
+}
+
+#canvas {
+    z-index: -1;
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    display: block;
+}
+
+.button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    max-width: 200px;
+    margin: 0 auto;
+}
+
+#start-button, #preset-button {
+    font-size: clamp(14px, 4vw, 16px);
+    color: #fff;
+    font-weight: 700;
+    margin: 0;
+    width: 100%;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    pointer-events: auto;
+    border: none;
+    border-radius: 4px;
+}
+
+#start-button {
+    background: #46be3c;
+}
+
+#preset-button {
+    background: rgba(80, 160, 230, 1);
+}
+
+.start-button-active {
+    cursor: default;
+    background: #46be3c;
+}
+
+.start-button-active:hover {
+    background: #3cb432;
+}
+
+.start-button-active:active {
+    background: #32aa28;
+}
+
+.start-button-inactive {
+    background: #999;
+    cursor: default;
+}
+
+.toggle-button {
+    margin-bottom: 10px;
+    background: rgba(100, 100, 100, 1);
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+    width: 90px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    cursor: default;
+    pointer-events: auto;
+    float: left;
+    border-color: rgba(20, 20, 20, 1);
+    border-style: solid;
+    border-width: 1px;
+}
+
+.toggle-button:active {
+    background: rgba(30, 30, 30, 1);
+}
+
+.toggle-button:hover {
+    background: rgba(70, 70, 70, 1);
+}
+
+#preset-button:hover {
+    background: rgba(70, 150, 220, 1);
+}
+
+#preset-button:active {
+    background: rgba(60, 140, 210, 1);
+}
+
+.toggle-sep {
+    clear: left;
+}
+
+#ui {
+    position: absolute;
+    pointer-events: visiblePainted;
+    top: 30px;
+    left: 30px;
+    width: 120px;
+    background-color: #000;
+}
+
+.dropdown {
+    width: 125px;
+}
+
+.dropdown button {
+    width: 125px;
+}
+
+#particle-count {
+    color: #777;
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+.slider-label {
+    color: #555;
+    font-size: 12px;
+    font-weight: 700;
+    margin-top: 5px;
+}
+
+.slider {
+    margin-top: 4px;
+    width: 200px;
+    height: 22px;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    background: rgba(0, 0, 0, 0.1);
+    pointer-events: auto;
+}
+
+.slider:hover {
+    background: rgba(0, 0, 0, 0.12);
+}
+
+.slider div {
+    background: #666;
+}
+
+.slider:hover div {
+    background: #555;
+}
+
+.instructions {
+    position: absolute;
+    bottom: 80px;
+    left: 30px;
+    font-size: 12px;
+    line-height: 16px;
+    color: #555;
+    margin-top: 20px;
+}
+
+.instructions span {
+    font-weight: 700;
+    color: #444;
+}
+
+#footer {
+    font-size: 12px;
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
+    color: #555;
+}
+
+#footer2 a {
+    text-decoration: underline;
+    color: rgba(35, 35, 35, 1);
+}
+
+#footer2 {
+    font-size: 10px;
+    position: absolute;
+    left: 20px;
+    right: 20px;
+    bottom: 40px;
+    color: rgba(35, 35, 35, 1);
+    display: none;
+}
+
+#footer a {
+    text-decoration: underline;
+    color: #555;
+}
+
+#container {
+    color: #333;
+    font-size: 14px;
+    margin-top: 40px;
+    margin-left: 40px;
+}
+
+#video {
+    color: #333;
+    font-size: 14px;
+    margin-top: 20px;
+}
+
+#linkback {
+    color: #333;
+    margin-top: 20px;
+}
+
+#linkback a {
+    color: #333;
+}
+
+@media screen and (max-width: 480px) {
+    .button-group {
+        padding: 0 10px;
+    }
+    
+    #start-button, #preset-button {
+        height: 44px;
+        line-height: 44px;
+    }
+}
