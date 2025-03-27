@@ -27,6 +27,45 @@ var Main = function() {
             
             // Initialize our slideout controls
             initializeControls();
+
+            // Auto-start functionality
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            let hasAutoStarted = false;  // Track if we've auto-started
+            
+            function autoStartSimulation() {
+                if (hasAutoStarted) return;  // Prevent multiple auto-starts
+                const startButton = document.querySelector('#start-button');
+                if (startButton) {
+                    startButton.click();
+                    hasAutoStarted = true;
+                }
+            }
+
+            function checkOrientationAndStart() {
+                const isLandscape = window.matchMedia("(orientation: landscape)").matches;
+                if (isLandscape && !hasAutoStarted) {
+                    setTimeout(autoStartSimulation, 1000);
+                }
+            }
+
+            if (isMobile) {
+                // Initial check
+                checkOrientationAndStart();
+                
+                // Listen for orientation changes
+                window.addEventListener('orientationchange', function() {
+                    // Wait for orientation change to complete
+                    setTimeout(checkOrientationAndStart, 100);
+                });
+
+                // Also listen for resize events as backup for orientation changes
+                window.addEventListener('resize', function() {
+                    checkOrientationAndStart();
+                });
+            } else {
+                // On desktop, wait 3 seconds
+                setTimeout(autoStartSimulation, 3000);
+            }
         }
     }
 
